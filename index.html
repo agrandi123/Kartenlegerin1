@@ -8,39 +8,43 @@
   <style>
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      height: 100svh;
+      width: 100vw;
       font-family: Arial, sans-serif;
       background: url('bilder/hintergrund.jpg') center/cover no-repeat fixed;
+      overflow: hidden;
       color: white;
-      height: 100svh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     .wrapper {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
       height: 100svh;
-      width: 100%;
-      padding: 20px;
-      text-align: center;
+      padding: 1vh 2vw;
     }
 
-    .hebel-container {
+    .bereich-oben {
       display: flex;
+      align-items: stretch;
+      justify-content: center;
+      gap: 2vw;
+      flex: 0 0 auto;
+      margin-bottom: 4vh;
+    }
+
+    .bereich-unten {
+      display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 20px;
+      flex: 1 1 auto;
     }
 
     .hebel-wrapper {
       width: 45px;
-      height: 160px;
+      height: 100%;
       background: linear-gradient(to bottom, #7a4b2b, #3e2b1c);
       border-radius: 22px;
       cursor: pointer;
@@ -54,15 +58,15 @@
 
     .hebel-griff {
       width: 10px;
-      height: 110px;
+      height: 70%;
       background: linear-gradient(to bottom, #a2653a, #5a3a26);
       border-radius: 5px;
       box-shadow: inset -1px -1px 3px rgba(0,0,0,0.6);
     }
 
     .hebel-kugel {
-      width: 45px;
-      height: 45px;
+      width: 100%;
+      aspect-ratio: 1;
       background: radial-gradient(circle at 30% 30%, #c9775c, #5a2d1f);
       border-radius: 50%;
       margin-bottom: 6px;
@@ -82,7 +86,12 @@
 
     .hebel-text {
       font-family: 'Cinzel Decorative', cursive;
-      font-size: clamp(18px, 4vw, 34px);
+      font-size: clamp(16px, 2.5vw, 32px);
+      line-height: 1.2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: calc(1.2em * 4);
       color: #FFD700;
       text-shadow:
         0 0 8px #ffda6b,
@@ -93,19 +102,18 @@
 
     .karten-container {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      flex-wrap: nowrap;
+      height: 100%;
       width: 100%;
-      overflow: hidden;
+      padding: 0 2vw;
     }
 
     .karten-wrapper {
-      flex: 1 1 0;
-      max-width: 24%;
+      width: 20%;
       aspect-ratio: 2 / 3;
       perspective: 1000px;
+      min-width: 0;
     }
 
     .karte {
@@ -126,24 +134,21 @@
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border: none;
-      box-shadow: none;
       object-fit: cover;
     }
 
     .rueckseite {
-      background: url('karten/rueckseite.png') center center / cover no-repeat;
-      background-color: transparent;
+      background: url('karten/rueckseite.png') center/cover no-repeat;
       z-index: 2;
-      transform: scale(0.9);
+      transform: scale(0.91);
+      transform-origin: center;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
     }
 
     .vorderseite {
-      background: url('bilder/nebel.png') center center / cover no-repeat;
-      background-color: transparent;
+      background: url('bilder/nebel.png') center/cover no-repeat;
       transform: rotateY(180deg);
     }
 
@@ -151,8 +156,8 @@
       position: fixed;
       top: 20px;
       left: 20px;
-      width: 100px;
-      height: 100px;
+      width: 80px;
+      height: 80px;
       background: url('icons/sound-on.png') center/contain no-repeat;
       cursor: pointer;
       z-index: 999;
@@ -161,22 +166,12 @@
     #soundToggle.muted {
       background-image: url('icons/sound-off.png');
     }
-
-    @media (max-width: 600px) {
-      .karten-wrapper { max-width: 22vw; }
-    }
-
-    @media (max-width: 400px) {
-      .karten-wrapper { max-width: 20vw; }
-    }
   </style>
 </head>
 <body>
-
   <div id="soundToggle" title="Sound an/aus"></div>
-
   <div class="wrapper">
-    <div class="hebel-container">
+    <div class="bereich-oben">
       <div class="hebel-wrapper" id="hebel">
         <div class="hebel-griff"></div>
         <div class="hebel-kugel"></div>
@@ -188,25 +183,24 @@
         <div>SCHICKSAL</div>
       </div>
     </div>
-    <div class="karten-container" id="kartenContainer"></div>
+    <div class="bereich-unten">
+      <div class="karten-container" id="kartenContainer"></div>
+    </div>
   </div>
-
   <script>
     window.addEventListener("DOMContentLoaded", () => {
-      const rueckseite = "karten/rueckseite.png";
       const soundKarten = new Audio("sounds/aufdecken.mp4");
-      soundKarten.volume = 0.5;
-
       const soundHebel = new Audio("sounds/hebel.mp3");
-      soundHebel.volume = 0.49;
-
       const soundFinale = new Audio("sounds/finale.mp3");
+
+      soundKarten.volume = 0.5;
+      soundHebel.volume = 0.49;
       soundFinale.volume = 0.8;
 
       const karten = Array.from({ length: 21 }, (_, i) => `karten/karte${i + 1}.png`);
       const kartenWrapper = document.getElementById("kartenContainer");
-
       const kartenElemente = [];
+
       for (let i = 0; i < 4; i++) {
         const wrapper = document.createElement("div");
         wrapper.className = "karten-wrapper";
@@ -274,7 +268,6 @@
 
       document.getElementById("hebel").addEventListener("click", zieheKarten);
 
-      // Hintergrundmusik
       const bgMusic = new Audio("sounds/hintergrund.mp3");
       bgMusic.loop = true;
       bgMusic.volume = 0.1;
