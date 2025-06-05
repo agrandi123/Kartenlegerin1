@@ -195,7 +195,7 @@
 
       soundKarten.volume = 0.5;
       soundHebel.volume = 0.49;
-      soundFinale.volume = 0.8;
+      soundFinale.volume = 0.5;
 
       const karten = Array.from({ length: 21 }, (_, i) => `karten/karte${i + 1}.png`);
       const kartenWrapper = document.getElementById("kartenContainer");
@@ -270,7 +270,7 @@
 
       const bgMusic = new Audio("sounds/hintergrund.mp3");
       bgMusic.loop = true;
-      bgMusic.volume = 0.1;
+      bgMusic.volume = 0.25;
       bgMusic.muted = true;
       bgMusic.play().catch(() => {});
 
