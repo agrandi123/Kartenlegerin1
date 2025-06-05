@@ -43,32 +43,32 @@
     .hebel-wrapper {
       width: 45px;
       height: 160px;
-      background: linear-gradient(to bottom, #bbb, #666);
+      background: linear-gradient(to bottom, #7a4b2b, #3e2b1c); /* rostig-braun */
       border-radius: 22px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.6);
+      box-shadow: inset 0 0 6px #2b1b10, 2px 2px 8px rgba(0, 0, 0, 0.5);
       transition: transform 0.2s ease;
     }
 
     .hebel-griff {
       width: 10px;
       height: 110px;
-      background: linear-gradient(to bottom, #ccc, #777);
+      background: linear-gradient(to bottom, #a2653a, #5a3a26); /* rostiger Stab */
       border-radius: 5px;
-      box-shadow: inset -1px -1px 3px rgba(0,0,0,0.4);
+      box-shadow: inset -1px -1px 3px rgba(0,0,0,0.6);
     }
 
     .hebel-kugel {
       width: 45px;
       height: 45px;
-      background: radial-gradient(circle at 30% 30%, #eee, #999);
+      background: radial-gradient(circle at 30% 30%, #c9775c, #5a2d1f); /* rostig-orange */
       border-radius: 50%;
       margin-bottom: 6px;
-      box-shadow: inset -4px -4px 8px rgba(0, 0, 0, 0.5);
+      box-shadow: inset -4px -4px 8px rgba(0, 0, 0, 0.6);
     }
 
     .hebel-wrapper.aktiv {
@@ -177,9 +177,9 @@
         <div class="hebel-kugel"></div>
       </div>
       <div class="hebel-text">
-        <div> Für 1$ zeigt </div>
+        <div> wirf 1$ ein </div>
         <div>Ms. Morrow</div>
-        <div>Dir Dein</div>
+        <div>zeigt Dein</div>
         <div>SCHICKSAL</div>
       </div>
     </div>
@@ -239,20 +239,23 @@
       soundHebel.currentTime = 0;
       soundHebel.play();
 
+      // Karten zurückdrehen
+      kartenElemente.forEach(({ karte }) => {
+        karte.classList.remove("show");
+      });
+
+      // Nach kurzer Pause neue Karten ziehen
       setTimeout(() => {
         hebel.classList.remove("aktiv");
 
         const gezogene = zieheEinzigartigeKarten(4);
-        kartenElemente.forEach(({ karte, front }) => {
-          karte.classList.remove("show");
-          front.style.backgroundImage = "none";
-        });
 
         gezogene.forEach((bild, i) => {
           setTimeout(() => {
             const { karte, front } = kartenElemente[i];
             front.style.backgroundImage = `url('${bild}')`;
             karte.classList.add("show");
+
             soundKarten.currentTime = 0;
             soundKarten.play();
 
@@ -264,13 +267,13 @@
             }
           }, 1000 * i + 1000);
         });
-      }, 700);
+      }, 800);
     }
 
     // Hintergrundmusik
     const bgMusic = new Audio("sounds/hintergrund.mp3");
     bgMusic.loop = true;
-    bgMusic.volume = 0.25;
+    bgMusic.volume = 0.1;
     bgMusic.muted = true;
     bgMusic.play().catch(() => {});
 
