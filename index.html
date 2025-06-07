@@ -17,6 +17,19 @@
       background: url('bilder/hintergrund.jpg') center/cover no-repeat fixed;
       overflow: hidden;
       color: white;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100svh;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 0;
+      pointer-events: none;
     }
 
     .wrapper {
@@ -24,15 +37,27 @@
       flex-direction: column;
       height: 100svh;
       padding: 1vh 2vw;
+      position: relative;
+      z-index: 1;
     }
 
     .bereich-oben {
       display: flex;
-      align-items: stretch;
       justify-content: center;
-      gap: 2vw;
       flex: 0 0 auto;
       margin-bottom: 4vh;
+    }
+
+    .schild-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 2vw;
+      padding: 1vw 2vw;
+      background: linear-gradient(to bottom, #444, #222);
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.05);
+      max-width: 100%;
+      flex-wrap: nowrap;
     }
 
     .bereich-unten {
@@ -152,41 +177,68 @@
       transform: rotateY(180deg);
     }
 
-    #soundToggle {
+    #soundToggleContainer {
       position: fixed;
       top: 20px;
       left: 20px;
       width: 80px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Cinzel Decorative', cursive;
+    }
+
+    #soundToggle {
+      width: 80px;
       height: 80px;
       background: url('icons/sound-on.png') center/contain no-repeat;
       cursor: pointer;
-      z-index: 999;
     }
 
     #soundToggle.muted {
       background-image: url('icons/sound-off.png');
     }
+
+    .sound-label {
+      text-align: center;
+      font-size: 16px;
+      color: #FFD700;
+      text-shadow:
+        0 0 6px #ffda6b,
+        0 0 12px #ffbf00,
+        1px 1px 3px black;
+      margin-top: 4px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <div id="soundToggle" title="Sound an/aus"></div>
+  <div id="soundToggleContainer">
+    <div id="soundToggle" title="Sound an/aus"></div>
+    <div class="sound-label">Ton</div>
+  </div>
+
   <div class="wrapper">
     <div class="bereich-oben">
-      <div class="hebel-wrapper" id="hebel">
-        <div class="hebel-griff"></div>
-        <div class="hebel-kugel"></div>
-      </div>
-      <div class="hebel-text">
-        <div>Nur 1$ und</div>
-        <div>Ms. Morrow</div>
-        <div>zeigt Dein</div>
-        <div>SCHICKSAL</div>
+      <div class="schild-wrapper">
+        <div class="hebel-wrapper" id="hebel">
+          <div class="hebel-griff"></div>
+          <div class="hebel-kugel"></div>
+        </div>
+        <div class="hebel-text">
+          <div>Nur 1$ und</div>
+          <div>Ms. Morrow</div>
+          <div>zeigt Dein</div>
+          <div>SCHICKSAL</div>
+        </div>
       </div>
     </div>
     <div class="bereich-unten">
       <div class="karten-container" id="kartenContainer"></div>
     </div>
   </div>
+
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const soundKarten = new Audio("sounds/aufdecken.mp4");
@@ -197,7 +249,7 @@
       soundHebel.volume = 0.30;
       soundFinale.volume = 0.5;
 
-      const karten = Array.from({ length: 23 }, (_, i) => `karten/karte${i + 1}.png`);
+      const karten = Array.from({ length: 24 }, (_, i) => `karten/karte${i + 1}.png`);
       const kartenWrapper = document.getElementById("kartenContainer");
       const kartenElemente = [];
 
