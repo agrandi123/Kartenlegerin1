@@ -194,10 +194,10 @@
       const soundFinale = new Audio("sounds/finale.mp3");
 
       soundKarten.volume = 0.5;
-      soundHebel.volume = 0.49;
+      soundHebel.volume = 0.30;
       soundFinale.volume = 0.5;
 
-      const karten = Array.from({ length: 21 }, (_, i) => `karten/karte${i + 1}.png`);
+      const karten = Array.from({ length: 23 }, (_, i) => `karten/karte${i + 1}.png`);
       const kartenWrapper = document.getElementById("kartenContainer");
       const kartenElemente = [];
 
@@ -270,7 +270,7 @@
 
       const bgMusic = new Audio("sounds/hintergrund.mp3");
       bgMusic.loop = true;
-      bgMusic.volume = 0.25;
+      bgMusic.volume = 0.22;
       bgMusic.muted = true;
       bgMusic.play().catch(() => {});
 
