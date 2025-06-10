@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kartenautomat</title>
+  <title>Miss Morrow</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; }
@@ -18,6 +18,25 @@
       overflow: hidden;
       color: white;
       position: relative;
+    }
+
+    .rauchschleier {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120vw;
+      height: 120svh;
+      background: url('bilder/nebel.png') center/cover repeat;
+      opacity: 0.45;
+      animation: rauchBewegung 90s linear infinite;
+      z-index: 0;
+      pointer-events: none;
+      transform: scale(1.2);
+    }
+
+    @keyframes rauchBewegung {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 200%; }
     }
 
     body::before {
@@ -56,8 +75,6 @@
       background: linear-gradient(to bottom, #444, #222);
       border-radius: 16px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.7), inset 0 0 5px rgba(255, 255, 255, 0.05);
-      max-width: 100%;
-      flex-wrap: nowrap;
     }
 
     .bereich-unten {
@@ -117,12 +134,9 @@
       flex-direction: column;
       justify-content: space-between;
       height: calc(1.2em * 4);
+      text-align: center;
       color: #FFD700;
-      text-shadow:
-        0 0 8px #ffda6b,
-        0 0 16px #ffbf00,
-        0 0 24px #ff9d00,
-        2px 2px 6px black;
+      text-shadow: 0 0 8px #ffda6b, 0 0 16px #ffbf00, 0 0 24px #ff9d00, 2px 2px 6px black;
     }
 
     .karten-container {
@@ -138,7 +152,6 @@
       width: 21%;
       aspect-ratio: 2 / 3;
       perspective: 1000px;
-      min-width: 0;
     }
 
     .karte {
@@ -166,7 +179,6 @@
       background: url('karten/rueckseite.png') center/cover no-repeat;
       z-index: 2;
       transform: scale(0.89);
-      transform-origin: center;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -177,26 +189,32 @@
       transform: rotateY(180deg);
     }
 
-    #soundToggleContainer {
+    .sound-controls {
       position: fixed;
       top: 20px;
       left: 20px;
-      width: 80px;
-      z-index: 2;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      gap: 16px;
+      z-index: 2;
       font-family: 'Cinzel Decorative', cursive;
     }
 
-    #soundToggle {
+    .sound-control {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80px;
+    }
+
+    .sound-icon {
       width: 80px;
       height: 80px;
       background: url('icons/sound-on.png') center/contain no-repeat;
       cursor: pointer;
     }
 
-    #soundToggle.muted {
+    #soundToggle.muted,
+    #musicToggle.muted {
       background-image: url('icons/sound-off.png');
     }
 
@@ -204,19 +222,23 @@
       text-align: center;
       font-size: 16px;
       color: #FFD700;
-      text-shadow:
-        0 0 6px #ffda6b,
-        0 0 12px #ffbf00,
-        1px 1px 3px black;
+      text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
       margin-top: 4px;
-      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div id="soundToggleContainer">
-    <div id="soundToggle" title="Sound an/aus"></div>
-    <div class="sound-label">Ton</div>
+  <div class="rauchschleier"></div>
+
+  <div class="sound-controls">
+    <div class="sound-control">
+      <div id="soundToggle" class="sound-icon" title="Sound an/aus"></div>
+      <div class="sound-label">Ton</div>
+    </div>
+    <div class="sound-control">
+      <div id="musicToggle" class="sound-icon" title="Musik an/aus"></div>
+      <div class="sound-label">Musik</div>
+    </div>
   </div>
 
   <div class="wrapper">
@@ -227,10 +249,10 @@
           <div class="hebel-kugel"></div>
         </div>
         <div class="hebel-text">
-          <div>Nur 1$ und</div>
-          <div>Ms. Morrow</div>
-          <div>zeigt Dein</div>
-          <div>SCHICKSAL</div>
+          <div>1$ und Miss</div>
+          <div>Morrow legt</div>
+          <div>Dir Deine</div>
+          <div>KARTEN</div>
         </div>
       </div>
     </div>
@@ -244,28 +266,40 @@
       const soundKarten = new Audio("sounds/aufdecken.mp4");
       const soundHebel = new Audio("sounds/hebel.mp3");
       const soundFinale = new Audio("sounds/finale.mp3");
+      const bgMusic = new Audio("sounds/hintergrund.mp3");
 
-      soundKarten.volume = 0.5;
-      soundHebel.volume = 0.30;
-      soundFinale.volume = 0.5;
+      [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
+      soundHebel.volume = 0.3;
+      bgMusic.loop = true;
+      bgMusic.volume = 0.22;
+      bgMusic.muted = true;
+      bgMusic.play().catch(() => {});
 
-      const karten = Array.from({ length: 24 }, (_, i) => `karten/karte${i + 1}.png`);
+      window.addEventListener("click", () => {
+        bgMusic.muted = false;
+        bgMusic.play();
+      }, { once: true });
+
+      const alleKarten = Array.from({ length: 26 }, (_, i) => `karten/karte${i + 1}.png`);
+      const ersteRundeKarten = [
+        ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
+        'karten/karte22.png',
+        'karten/karte23.png'
+      ];
+
       const kartenWrapper = document.getElementById("kartenContainer");
       const kartenElemente = [];
+      let ersterZug = true;
 
       for (let i = 0; i < 4; i++) {
         const wrapper = document.createElement("div");
         wrapper.className = "karten-wrapper";
-
         const karte = document.createElement("div");
         karte.className = "karte";
-
         const rueck = document.createElement("div");
         rueck.className = "seite rueckseite";
-
         const front = document.createElement("div");
         front.className = "seite vorderseite";
-
         karte.appendChild(rueck);
         karte.appendChild(front);
         wrapper.appendChild(karte);
@@ -273,8 +307,8 @@
         kartenElemente.push({ karte, front });
       }
 
-      function zieheEinzigartigeKarten(anzahl) {
-        const pool = [...karten];
+      function zieheEinzigartigeKarten(anzahl, quelle) {
+        const pool = [...quelle];
         const gezogen = [];
         for (let i = 0; i < anzahl; i++) {
           const index = Math.floor(Math.random() * pool.length);
@@ -286,27 +320,23 @@
       function zieheKarten() {
         const hebel = document.getElementById("hebel");
         hebel.classList.add("aktiv");
-
         soundHebel.currentTime = 0;
         soundHebel.play();
-
-        kartenElemente.forEach(({ karte }) => {
-          karte.classList.remove("show");
-        });
+        kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
 
         setTimeout(() => {
           hebel.classList.remove("aktiv");
-          const gezogene = zieheEinzigartigeKarten(4);
+          const quelle = ersterZug ? ersteRundeKarten : alleKarten;
+          const gezogene = zieheEinzigartigeKarten(4, quelle);
+          ersterZug = false;
 
           gezogene.forEach((bild, i) => {
             setTimeout(() => {
               const { karte, front } = kartenElemente[i];
               front.style.backgroundImage = `url('${bild}')`;
               karte.classList.add("show");
-
               soundKarten.currentTime = 0;
               soundKarten.play();
-
               if (i === 3) {
                 setTimeout(() => {
                   soundFinale.currentTime = 0;
@@ -320,26 +350,21 @@
 
       document.getElementById("hebel").addEventListener("click", zieheKarten);
 
-      const bgMusic = new Audio("sounds/hintergrund.mp3");
-      bgMusic.loop = true;
-      bgMusic.volume = 0.22;
-      bgMusic.muted = true;
-      bgMusic.play().catch(() => {});
-
-      window.addEventListener("click", () => {
-        bgMusic.muted = false;
-        bgMusic.play();
-      }, { once: true });
-
       const soundToggle = document.getElementById("soundToggle");
       let soundMuted = false;
-
       soundToggle.addEventListener("click", () => {
         soundMuted = !soundMuted;
         soundToggle.classList.toggle("muted", soundMuted);
-        [soundKarten, soundHebel, soundFinale, bgMusic].forEach(audio => {
-          audio.muted = soundMuted;
-        });
+        [soundKarten, soundHebel, soundFinale].forEach(a => a.muted = soundMuted);
+      });
+
+      const musicToggle = document.getElementById("musicToggle");
+      let musicMuted = true;
+      musicToggle.addEventListener("click", () => {
+        musicMuted = !musicMuted;
+        musicToggle.classList.toggle("muted", musicMuted);
+        bgMusic.muted = musicMuted;
+        if (!musicMuted) bgMusic.play();
       });
     });
   </script>
