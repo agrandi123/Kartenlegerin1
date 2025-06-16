@@ -267,11 +267,21 @@
       const soundHebel = new Audio("sounds/hebel.mp3");
       const soundFinale = new Audio("sounds/finale.mp3");
       const bgMusic = new Audio("sounds/hintergrund.mp3");
+const soundsProKarte = [
+        new Audio("sounds/eins.mp3"),
+        new Audio("sounds/zwei.mp3"),
+        new Audio("sounds/drei.mp3"),
+        new Audio("sounds/vier.mp3")
+      ];
+      soundsProKarte.forEach(s => {
+        s.preload = "auto";
+        s.volume = 0.58;
+      });
 
       [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
       soundHebel.volume = 0.3;
       bgMusic.loop = true;
-      bgMusic.volume = 0.22;
+      bgMusic.volume = 0.20;
       bgMusic.muted = true;
       bgMusic.play().catch(() => {});
 
@@ -280,11 +290,15 @@
         bgMusic.play();
       }, { once: true });
 
-      const alleKarten = Array.from({ length: 26 }, (_, i) => `karten/karte${i + 1}.png`);
+      const alleKarten = Array.from({ length: 30 }, (_, i) => `karten/karte${i + 1}.png`);
       const ersteRundeKarten = [
         ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
         'karten/karte22.png',
-        'karten/karte23.png'
+        'karten/karte23.png',
+	'karten/karte27.png',
+	'karten/karte28.png',
+	'karten/karte29.png',
+	'karten/karte30.png'
       ];
 
       const kartenWrapper = document.getElementById("kartenContainer");
@@ -330,11 +344,25 @@
           const gezogene = zieheEinzigartigeKarten(4, quelle);
           ersterZug = false;
 
+          
           gezogene.forEach((bild, i) => {
+            let delay;
+            if (i === 0) delay = 500;
+            else if (i === 1) delay = 2500;
+            else if (i === 2) delay = 5300;
+            else if (i === 3) delay = 7300;
+
             setTimeout(() => {
               const { karte, front } = kartenElemente[i];
               front.style.backgroundImage = `url('${bild}')`;
+
+              const sound = soundsProKarte[i];
+              sound.pause();
+              sound.currentTime = 0;
+              sound.play().catch(err => console.warn("Sound konnte nicht abgespielt werden:", err));
+
               karte.classList.add("show");
+
               soundKarten.currentTime = 0;
               soundKarten.play();
               if (i === 3) {
@@ -343,7 +371,7 @@
                   soundFinale.play();
                 }, 1800);
               }
-            }, 1000 * i + 1000);
+            }, delay);
           });
         }, 800);
       }
@@ -355,7 +383,7 @@
       soundToggle.addEventListener("click", () => {
         soundMuted = !soundMuted;
         soundToggle.classList.toggle("muted", soundMuted);
-        [soundKarten, soundHebel, soundFinale].forEach(a => a.muted = soundMuted);
+        [soundKarten, soundHebel, soundFinale, bgMusic, ...soundsProKarte].forEach(a => a.muted = soundMuted);
       });
 
       const musicToggle = document.getElementById("musicToggle");
