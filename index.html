@@ -275,7 +275,7 @@ const soundsProKarte = [
       ];
       soundsProKarte.forEach(s => {
         s.preload = "auto";
-        s.volume = 0.58;
+        s.volume = 0.5;
       });
 
       [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
@@ -304,6 +304,7 @@ const soundsProKarte = [
       const kartenWrapper = document.getElementById("kartenContainer");
       const kartenElemente = [];
       let ersterZug = true;
+      let aktiveTimeouts = [];
 
       for (let i = 0; i < 4; i++) {
         const wrapper = document.createElement("div");
@@ -332,51 +333,55 @@ const soundsProKarte = [
       }
 
       function zieheKarten() {
-        const hebel = document.getElementById("hebel");
-        hebel.classList.add("aktiv");
-        soundHebel.currentTime = 0;
-        soundHebel.play();
-        kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
+  // Abbrechen aller laufenden Timeouts
+  aktiveTimeouts.forEach(id => clearTimeout(id));
+  aktiveTimeouts = [];
 
-        setTimeout(() => {
-          hebel.classList.remove("aktiv");
-          const quelle = ersterZug ? ersteRundeKarten : alleKarten;
-          const gezogene = zieheEinzigartigeKarten(4, quelle);
-          ersterZug = false;
+  const hebel = document.getElementById("hebel");
+  hebel.classList.add("aktiv");
+  soundHebel.currentTime = 0;
+  soundHebel.play();
+  kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
 
-          
-          gezogene.forEach((bild, i) => {
-            let delay;
-            if (i === 0) delay = 500;
-            else if (i === 1) delay = 2500;
-            else if (i === 2) delay = 5300;
-            else if (i === 3) delay = 7300;
+  aktiveTimeouts.push(setTimeout(() => {
+    hebel.classList.remove("aktiv");
+    const quelle = ersterZug ? ersteRundeKarten : alleKarten;
+    const gezogene = zieheEinzigartigeKarten(4, quelle);
+    ersterZug = false;
 
-            setTimeout(() => {
-              const { karte, front } = kartenElemente[i];
-              front.style.backgroundImage = `url('${bild}')`;
+    gezogene.forEach((bild, i) => {
+      let delay;
+      if (i === 0) delay = 500;
+      else if (i === 1) delay = 2200;
+      else if (i === 2) delay = 5000;
+      else if (i === 3) delay = 7000;
 
-              const sound = soundsProKarte[i];
-              sound.pause();
-              sound.currentTime = 0;
-              sound.play().catch(err => console.warn("Sound konnte nicht abgespielt werden:", err));
+      aktiveTimeouts.push(setTimeout(() => {
+        const { karte, front } = kartenElemente[i];
+        front.style.backgroundImage = `url('${bild}')`;
 
-              karte.classList.add("show");
+        const sound = soundsProKarte[i];
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch(err => console.warn("Sound konnte nicht abgespielt werden:", err));
 
-              soundKarten.currentTime = 0;
-              soundKarten.play();
-              if (i === 3) {
-                setTimeout(() => {
-                  soundFinale.currentTime = 0;
-                  soundFinale.play();
-                }, 1800);
-              }
-            }, delay);
-          });
-        }, 800);
-      }
+        karte.classList.add("show");
 
-      document.getElementById("hebel").addEventListener("click", zieheKarten);
+        soundKarten.currentTime = 0;
+        soundKarten.play();
+
+        if (i === 3) {
+          aktiveTimeouts.push(setTimeout(() => {
+            soundFinale.currentTime = 0;
+            soundFinale.play();
+          }, 1800));
+        }
+      }, delay));
+    });
+  }, 800));
+}
+
+document.getElementById("hebel").addEventListener("click", zieheKarten);
 
       const soundToggle = document.getElementById("soundToggle");
       let soundMuted = false;
