@@ -225,10 +225,30 @@
       text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
       margin-top: 4px;
     }
-  </style>
+  
+.blinkhinweis {
+  position: fixed;
+  top: 12vh;
+  right: 2vw;
+  z-index: 2;
+  font-size: clamp(14px, 1.8vw, 26px);
+  text-align: right;
+  font-family: 'Cinzel Decorative', cursive;
+  color: #FFD700;
+  text-shadow: 0 0 8px #ffda6b, 0 0 16px #ffbf00, 0 0 24px #ff9d00, 2px 2px 6px black;
+  animation: blinken 1.2s infinite alternate;
+  line-height: 1.2;
+  transform: rotate(30deg);
+}
+
+</style>
 </head>
 <body>
   <div class="rauchschleier"></div>
+  <div class="blinkhinweis">
+    Spezialkarten erst ab<br>der zweiten Legung!
+  </div>
+
 
   <div class="sound-controls">
     <div class="sound-control">
