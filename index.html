@@ -295,13 +295,13 @@ const soundsProKarte = [
       ];
       soundsProKarte.forEach(s => {
         s.preload = "auto";
-        s.volume = 0.80;
+        s.volume = 0.66;
       });
 
       [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
-      soundHebel.volume = 0.3;
+      soundHebel.volume = 0.25;
       bgMusic.loop = true;
-      bgMusic.volume = 0.20;
+      bgMusic.volume = 0.17;
       bgMusic.muted = true;
       bgMusic.play().catch(() => {});
 
