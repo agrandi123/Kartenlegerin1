@@ -295,7 +295,7 @@ const soundsProKarte = [
       ];
       soundsProKarte.forEach(s => {
         s.preload = "auto";
-        s.volume = 0.5;
+        s.volume = 0.80;
       });
 
       [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
@@ -310,7 +310,7 @@ const soundsProKarte = [
         bgMusic.play();
       }, { once: true });
 
-      const alleKarten = Array.from({ length: 32 }, (_, i) => `karten/karte${i + 1}.png`);
+      const alleKarten = Array.from({ length: 35 }, (_, i) => `karten/karte${i + 1}.png`);
       const ersteRundeKarten = [
         ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
         'karten/karte22.png',
@@ -320,7 +320,9 @@ const soundsProKarte = [
 	'karten/karte29.png',
 	'karten/karte30.png',
 	'karten/karte31.png',
-	'karten/karte32.png'
+	'karten/karte33.png',
+	'karten/karte34.png',
+	'karten/karte35.png'
       ];
 
       const kartenWrapper = document.getElementById("kartenContainer");
