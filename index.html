@@ -98,6 +98,37 @@
     }
 
     .schild-wrapper {
+
+    .guthaben-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 2vw;
+      font-family: 'Cinzel Decorative', cursive;
+      color: #FFD700;
+      text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
+      min-width: 80px;
+    }
+
+    .guthaben-label {
+      font-size: clamp(14px, 1.8vw, 24px);
+      margin-bottom: 0.3em;
+    }
+
+    .guthaben-stand {
+      font-size: clamp(18px, 2.2vw, 32px);
+      transition: opacity 0.2s ease;
+    }
+
+    .guthaben-stand.blink {
+      animation: blinkGuthaben 1s ease-in-out 3;
+    }
+
+    @keyframes blinkGuthaben {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
       display: flex;
       align-items: center;
       gap: 2vw;
@@ -279,6 +310,22 @@
   </style>
 </head>
 <body>
+
+<div id="kartenZaehler" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-family: 'Cinzel Decorative', cursive;
+  font-size: 3px;
+  color: #FFD700;
+  text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
+  z-index: 2;">
+  Karten übrig: 44
+</div>
+
 <div id="vorhang-overlay">
 <div class="vorhang links"></div>
 <div class="vorhang rechts"></div>
@@ -301,6 +348,10 @@
 <div class="wrapper">
 <div class="bereich-oben">
 <div class="schild-wrapper">
+        <div class="guthaben-box">
+          <div class="guthaben-label">Guthaben</div>
+          <div class="guthaben-stand" id="guthabenAnzeige">11 $</div>
+        </div>
 <div class="hebel-wrapper" id="hebel">
 <div class="hebel-griff"></div>
 <div class="hebel-kugel"></div>
@@ -381,6 +432,23 @@
       const kartenWrapper = document.getElementById("kartenContainer");
       const kartenElemente = [];
       let ersterZug = true;
+      let guthaben = 11;
+      const guthabenAnzeige = document.getElementById("guthabenAnzeige");
+
+      function aktualisiereGuthaben() {
+        guthaben--;
+        if (guthaben <= 0) {
+          guthabenAnzeige.classList.add("blink");
+          setTimeout(() => {
+            guthaben = 11;
+            guthabenAnzeige.textContent = `${guthaben} $`;
+            guthabenAnzeige.classList.remove("blink");
+          }, 1500);
+        } else {
+          guthabenAnzeige.textContent = `${guthaben} $`;
+        }
+      }
+
       let aktiveTimeouts = [];
 
       for (let i = 0; i < 4; i++) {
@@ -400,12 +468,20 @@
       }
 
       let ziehPool = [];
-      function zieheEinzigartigeKarten(anzahl) {
-        if (ziehPool.length < anzahl) {
-          ziehPool = [...alleKarten];
+let aktuellerPool = null;
+
+      function aktualisiereZaehler() {
+        document.getElementById("kartenZaehler").textContent = `Karten übrig: ${ziehPool.length}`;
+      }
+
+      function zieheEinzigartigeKarten(anzahl, pool) {
+        if (!ziehPool.length || pool !== aktuellerPool) {
+          ziehPool = [...pool];
+          aktuellerPool = pool;
         }
         const gezogen = [];
         for (let i = 0; i < anzahl; i++) {
+          if (!ziehPool.length) break;
           const index = Math.floor(Math.random() * ziehPool.length);
           gezogen.push(ziehPool.splice(index, 1)[0]);
         }
@@ -413,6 +489,7 @@
       }
 
       function zieheKarten() {
+        aktualisiereGuthaben();
         aktiveTimeouts.forEach(id => clearTimeout(id));
         aktiveTimeouts = [];
 
@@ -426,7 +503,15 @@
           hebel.classList.remove("aktiv");
           const quelle = ersterZug ? ersteRundeKarten : alleKarten;
           const pool = ersterZug ? ersteRundeKarten : alleKarten;
-      const gezogene = zieheEinzigartigeKarten(4, pool);
+      const gezogene = zieheEinzigartigeKarten(4, ersterZug ? ersteRundeKarten : alleKarten);
+          aktualisiereZaehler();
+          if (ersterZug) {
+            for (const karte of gezogene) {
+              const index = alleKarten.indexOf(karte);
+              if (index !== -1) alleKarten.splice(index, 1);
+            }
+          }
+          ersterZug = false;
       ersterZug = false;
           ersterZug = false;
 
@@ -451,12 +536,14 @@
                   soundFinale.currentTime = 0;
                   soundFinale.play();
                 }, 1800));
+              aktualisiereZaehler();
               }
             }, delay));
           });
         }, 800));
       }
 
+      aktualisiereZaehler();
       document.getElementById("hebel").addEventListener("click", zieheKarten);
 
       const soundToggle = document.getElementById("soundToggle");
