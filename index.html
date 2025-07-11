@@ -111,12 +111,12 @@
     }
 
     .guthaben-label {
-      font-size: clamp(16px, 1.8vw, 24px);
+      font-size: clamp(14px, 1.8vw, 24px);
       margin-bottom: 0.3em;
     }
 
     .guthaben-stand {
-      font-size: clamp(20px, 2.2vw, 32px);
+      font-size: clamp(18px, 2.2vw, 32px);
       transition: opacity 0.2s ease;
     }
 
@@ -311,6 +311,39 @@
 </head>
 <body>
 
+<!-- Modal für Aufladung -->
+<div id="guthabenModal" style="
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  padding: 30px 40px;
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+  z-index: 9999;
+  font-family: 'Cinzel Decorative', cursive;
+  color: #FFD700;
+  text-shadow: 0 0 8px #ffda6b, 0 0 16px #ffbf00;
+  text-align: center;
+">
+  <div style="font-size: 2em; margin-bottom: 20px;">Bitte Geld einwerfen!</div>
+  <button id="einwerfenBtn" style="
+    font-size: 1.5em;
+    padding: 10px 30px;
+    background: #444;
+    border: 2px solid #FFD700;
+    border-radius: 10px;
+    color: #FFD700;
+    cursor: pointer;
+    text-shadow: 0 0 5px black;
+    pointer-events: auto;
+  ">11 Dollar</button>
+</div>
+
+
 <div id="kartenZaehler" style="
   position: fixed;
   top: 20px;
@@ -435,19 +468,21 @@
       let guthaben = 11;
       const guthabenAnzeige = document.getElementById("guthabenAnzeige");
 
+      
       function aktualisiereGuthaben() {
-        guthaben--;
-        if (guthaben <= 0) {
-          guthabenAnzeige.classList.add("blink");
-          setTimeout(() => {
-            guthaben = 11;
-            guthabenAnzeige.textContent = `${guthaben} $`;
-            guthabenAnzeige.classList.remove("blink");
-          }, 1500);
-        } else {
+        if (guthaben > 0) {
+          guthaben--;
           guthabenAnzeige.textContent = `${guthaben} $`;
+          if (guthaben === 0) {
+            guthabenAnzeige.classList.add("blink");
+          }
+          return true;
+        } else {
+          guthabenAnzeige.classList.add("blink");
+          return false;
         }
       }
+
 
       let aktiveTimeouts = [];
 
@@ -489,7 +524,10 @@ let aktuellerPool = null;
       }
 
       function zieheKarten() {
-        aktualisiereGuthaben();
+        if (!aktualisiereGuthaben()) {
+          modal.style.display = "block";
+          return;
+        }
         aktiveTimeouts.forEach(id => clearTimeout(id));
         aktiveTimeouts = [];
 
@@ -545,6 +583,16 @@ let aktuellerPool = null;
 
       aktualisiereZaehler();
       document.getElementById("hebel").addEventListener("click", zieheKarten);
+
+      const modal = document.getElementById("guthabenModal");
+      const einwerfenBtn = document.getElementById("einwerfenBtn");
+      einwerfenBtn.addEventListener("click", () => {
+        guthaben = 11;
+        guthabenAnzeige.textContent = `${guthaben} $`;
+        guthabenAnzeige.classList.remove("blink");
+        modal.style.display = "none";
+      });
+
 
       const soundToggle = document.getElementById("soundToggle");
       let soundMuted = false;
