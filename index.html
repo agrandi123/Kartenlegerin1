@@ -19,7 +19,7 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  transition: transform 5s ease;
+  transition: transform 4s ease;
 }
 .vorhang.links {
   background-image: url('bilder/vorhang-links.png');
@@ -406,7 +406,7 @@
       const vorhang = document.getElementById("vorhang-overlay");
       window.addEventListener("click", () => {
         vorhang.classList.add("geoeffnet");
-        setTimeout(() => vorhang.remove(), 4500);
+        setTimeout(() => vorhang.remove(), 4000);
         bgMusic.muted = false;
         bgMusic.play();
       }, { once: true });
