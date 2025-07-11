@@ -116,7 +116,7 @@
     }
 
     .guthaben-stand {
-      font-size: clamp(18px, 2.2vw, 32px);
+      font-size: clamp(16px, 2.5vw, 32px);
       transition: opacity 0.2s ease;
     }
 
@@ -414,6 +414,8 @@
       const soundKarten = new Audio("sounds/aufdecken.mp4");
       const soundHebel = new Audio("sounds/hebel.mp3");
       const soundFinale = new Audio("sounds/finale.mp3");
+      const soundMuenze = new Audio("sounds/muenze.mp3");
+      soundMuenze.volume = 0.5;
       const bgMusic = new Audio("sounds/hintergrund.mp3");
       const soundsProKarte = [
         new Audio("sounds/eins.mp3"),
@@ -485,6 +487,7 @@
 
 
       let aktiveTimeouts = [];
+let hebelGesperrt = false;
 
       for (let i = 0; i < 4; i++) {
         const wrapper = document.createElement("div");
@@ -524,6 +527,9 @@ let aktuellerPool = null;
       }
 
       function zieheKarten() {
+  if (hebelGesperrt) return;
+  hebelGesperrt = true;
+  setTimeout(() => hebelGesperrt = false, 8500);
         if (!aktualisiereGuthaben()) {
           modal.style.display = "block";
           return;
@@ -590,7 +596,10 @@ let aktuellerPool = null;
         guthaben = 11;
         guthabenAnzeige.textContent = `${guthaben} $`;
         guthabenAnzeige.classList.remove("blink");
-        modal.style.display = "none";
+                soundMuenze.currentTime = 0;
+        soundMuenze.play();
+modal.style.display = "none";
+        hebelGesperrt = false;
       });
 
 
