@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="de">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>MOIRA</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet"/>
 <style>
 #vorhang-overlay {
   position: fixed;
@@ -340,9 +339,8 @@
     cursor: pointer;
     text-shadow: 0 0 5px black;
     pointer-events: auto;
-  ">11 Dollar</button>
+  ">13 Dollar</button>
 </div>
-
 
 <div id="kartenZaehler" style="
   position: fixed;
@@ -356,270 +354,274 @@
   color: #FFD700;
   text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
   z-index: 2;">
-  Karten übrig: 44
+  Karten übrig: 52
 </div>
 
 <div id="vorhang-overlay">
-<div class="vorhang links"></div>
-<div class="vorhang rechts"></div>
+  <div class="vorhang links"></div>
+  <div class="vorhang rechts"></div>
 </div>
 
 <div class="rauchschleier"></div>
 <div class="blinkhinweis">
     Spezialkarten erst ab<br/>der zweiten Legung!
-  </div>
+</div>
 <div class="sound-controls">
-<div class="sound-control">
-<div class="sound-icon" id="soundToggle" title="Sound an/aus"></div>
-<div class="sound-label">Ton</div>
-</div>
-<div class="sound-control">
-<div class="sound-icon" id="musicToggle" title="Musik an/aus"></div>
-<div class="sound-label">Musik</div>
-</div>
+  <div class="sound-control">
+    <div class="sound-icon" id="soundToggle" title="Sound an/aus"></div>
+    <div class="sound-label">Ton</div>
+  </div>
+  <div class="sound-control">
+    <div class="sound-icon" id="musicToggle" title="Musik an/aus"></div>
+    <div class="sound-label">Musik</div>
+  </div>
 </div>
 <div class="wrapper">
-<div class="bereich-oben">
-<div class="schild-wrapper">
-        <div class="guthaben-box">
-          <div class="guthaben-label">Guthaben</div>
-          <div class="guthaben-stand" id="guthabenAnzeige">11 $</div>
-        </div>
-<div class="hebel-wrapper" id="hebel">
-<div class="hebel-griff"></div>
-<div class="hebel-kugel"></div>
+  <div class="bereich-oben">
+    <div class="schild-wrapper">
+      <div class="guthaben-box">
+        <div class="guthaben-label">Guthaben</div>
+        <div class="guthaben-stand" id="guthabenAnzeige">13 $</div>
+      </div>
+      <div class="hebel-wrapper" id="hebel">
+        <div class="hebel-griff"></div>
+        <div class="hebel-kugel"></div>
+      </div>
+      <div class="hebel-text">
+        <div>1$ und Miss</div>
+        <div>Morrow legt</div>
+        <div>für Dich das</div>
+        <div>kleine Kreuz</div>
+      </div>
+    </div>
+  </div>
+  <div class="bereich-unten">
+    <div class="karten-container" id="kartenContainer"></div>
+  </div>
 </div>
-<div class="hebel-text">
-<div>1$ und Miss</div>
-<div>Morrow legt</div>
-<div>für Dich das</div>
-<div>kleine Kreuz</div>
-</div>
-</div>
-</div>
-<div class="bereich-unten">
-<div class="karten-container" id="kartenContainer"></div>
-</div>
-</div>
+
 <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const vorhang = document.getElementById("vorhang-overlay");
-      window.addEventListener("click", () => {
-        vorhang.classList.add("geoeffnet");
-        setTimeout(() => vorhang.remove(), 4000);
-        bgMusic.muted = false;
-        bgMusic.play();
-      }, { once: true });
+  window.addEventListener("DOMContentLoaded", () => {
+    const vorhang = document.getElementById("vorhang-overlay");
+    window.addEventListener("click", () => {
+      vorhang.classList.add("geoeffnet");
+      setTimeout(() => vorhang.remove(), 4000);
+      bgMusic.muted = false;
+      bgMusic.play();
+    }, { once: true });
 
-      const soundKarten = new Audio("sounds/aufdecken.mp4");
-      const soundHebel = new Audio("sounds/hebel.mp3");
-      const soundFinale = new Audio("sounds/finale.mp3");
-      const soundMuenze = new Audio("sounds/muenze.mp3");
-      soundMuenze.volume = 0.5;
-      const bgMusic = new Audio("sounds/hintergrund.mp3");
-      const soundsProKarte = [
-        new Audio("sounds/eins.mp3"),
-        new Audio("sounds/zwei.mp3"),
-        new Audio("sounds/drei.mp3"),
-        new Audio("sounds/vier.mp3")
-      ];
-      soundsProKarte.forEach(s => {
-        s.preload = "auto";
-        s.volume = 0.70;
-      });
-
-      [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
-      soundHebel.volume = 0.24;
-      bgMusic.loop = true;
-      bgMusic.volume = 0.19;
-      bgMusic.muted = true;
-      bgMusic.play().catch(() => {});
-
-      window.addEventListener("click", () => {
-        bgMusic.muted = false;
-        bgMusic.play();
-      }, { once: true });
-
-      const alleKarten = Array.from({ length: 44 }, (_, i) => `karten/karte${i + 1}.png`);
-      const ersteRundeKarten = [
-        ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
-	'karten/karte19.png',
-        'karten/karte22.png',
-        'karten/karte23.png',
-        'karten/karte27.png',
-        'karten/karte28.png',
-        'karten/karte29.png',
-        'karten/karte30.png',
-        'karten/karte31.png',
-        'karten/karte33.png',
-        'karten/karte34.png',
-        'karten/karte35.png',
-        'karten/karte36.png',
-        'karten/karte37.png',
-        'karten/karte38.png',
-        'karten/karte39.png',
-        'karten/karte41.png',
-	'karten/karte42.png',
-	'karten/karte43.png',
-        'karten/karte44.png'
-      ];
-
-      const kartenWrapper = document.getElementById("kartenContainer");
-      const kartenElemente = [];
-      let ersterZug = true;
-      let guthaben = 11;
-      const guthabenAnzeige = document.getElementById("guthabenAnzeige");
-
-      
-      function aktualisiereGuthaben() {
-        if (guthaben > 0) {
-          guthaben--;
-          guthabenAnzeige.textContent = `${guthaben} $`;
-          if (guthaben === 0) {
-            guthabenAnzeige.classList.add("blink");
-          }
-          return true;
-        } else {
-          guthabenAnzeige.classList.add("blink");
-          return false;
-        }
-      }
-
-
-      let aktiveTimeouts = [];
-let hebelGesperrt = false;
-
-      for (let i = 0; i < 4; i++) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "karten-wrapper";
-        const karte = document.createElement("div");
-        karte.className = "karte";
-        const rueck = document.createElement("div");
-        rueck.className = "seite rueckseite";
-        const front = document.createElement("div");
-        front.className = "seite vorderseite";
-        karte.appendChild(rueck);
-        karte.appendChild(front);
-        wrapper.appendChild(karte);
-        kartenWrapper.appendChild(wrapper);
-        kartenElemente.push({ karte, front });
-      }
-
-      let ziehPool = [];
-let aktuellerPool = null;
-
-      function aktualisiereZaehler() {
-        document.getElementById("kartenZaehler").textContent = `Karten übrig: ${ziehPool.length}`;
-      }
-
-      function zieheEinzigartigeKarten(anzahl, pool) {
-        if (!ziehPool.length || pool !== aktuellerPool) {
-          ziehPool = [...pool];
-          aktuellerPool = pool;
-        }
-        const gezogen = [];
-        for (let i = 0; i < anzahl; i++) {
-          if (!ziehPool.length) break;
-          const index = Math.floor(Math.random() * ziehPool.length);
-          gezogen.push(ziehPool.splice(index, 1)[0]);
-        }
-        return gezogen;
-      }
-
-      function zieheKarten() {
-  if (hebelGesperrt) return;
-  hebelGesperrt = true;
-  setTimeout(() => hebelGesperrt = false, 8500);
-        if (!aktualisiereGuthaben()) {
-          modal.style.display = "block";
-          return;
-        }
-        aktiveTimeouts.forEach(id => clearTimeout(id));
-        aktiveTimeouts = [];
-
-        const hebel = document.getElementById("hebel");
-        hebel.classList.add("aktiv");
-        soundHebel.currentTime = 0;
-        soundHebel.play();
-        kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
-
-        aktiveTimeouts.push(setTimeout(() => {
-          hebel.classList.remove("aktiv");
-          const quelle = ersterZug ? ersteRundeKarten : alleKarten;
-          const pool = ersterZug ? ersteRundeKarten : alleKarten;
-      const gezogene = zieheEinzigartigeKarten(4, ersterZug ? ersteRundeKarten : alleKarten);
-          aktualisiereZaehler();
-          if (ersterZug) {
-            for (const karte of gezogene) {
-              const index = alleKarten.indexOf(karte);
-              if (index !== -1) alleKarten.splice(index, 1);
-            }
-          }
-          ersterZug = false;
-      ersterZug = false;
-          ersterZug = false;
-
-          gezogene.forEach((bild, i) => {
-            let delay = [500, 2200, 5000, 7000][i];
-            aktiveTimeouts.push(setTimeout(() => {
-              const { karte, front } = kartenElemente[i];
-              front.style.backgroundImage = `url('${bild}')`;
-
-              const sound = soundsProKarte[i];
-              sound.pause();
-              sound.currentTime = 0;
-              sound.play().catch(err => console.warn("Sound konnte nicht abgespielt werden:", err));
-
-              karte.classList.add("show");
-
-              soundKarten.currentTime = 0;
-              soundKarten.play();
-
-              if (i === 3) {
-                aktiveTimeouts.push(setTimeout(() => {
-                  soundFinale.currentTime = 0;
-                  soundFinale.play();
-                }, 1800));
-              aktualisiereZaehler();
-              }
-            }, delay));
-          });
-        }, 800));
-      }
-
-      aktualisiereZaehler();
-      document.getElementById("hebel").addEventListener("click", zieheKarten);
-
-      const modal = document.getElementById("guthabenModal");
-      const einwerfenBtn = document.getElementById("einwerfenBtn");
-      einwerfenBtn.addEventListener("click", () => {
-        guthaben = 11;
-        guthabenAnzeige.textContent = `${guthaben} $`;
-        guthabenAnzeige.classList.remove("blink");
-                soundMuenze.currentTime = 0;
-        soundMuenze.play();
-modal.style.display = "none";
-        hebelGesperrt = false;
-      });
-
-
-      const soundToggle = document.getElementById("soundToggle");
-      let soundMuted = false;
-      soundToggle.addEventListener("click", () => {
-        soundMuted = !soundMuted;
-        soundToggle.classList.toggle("muted", soundMuted);
-        [soundKarten, soundHebel, soundFinale, bgMusic, ...soundsProKarte].forEach(a => a.muted = soundMuted);
-      });
-
-      const musicToggle = document.getElementById("musicToggle");
-      let musicMuted = true;
-      musicToggle.addEventListener("click", () => {
-        musicMuted = !musicMuted;
-        musicToggle.classList.toggle("muted", musicMuted);
-        bgMusic.muted = musicMuted;
-        if (!musicMuted) bgMusic.play();
-      });
+    const soundKarten = new Audio("sounds/aufdecken.mp4");
+    const soundHebel = new Audio("sounds/hebel.mp3");
+    const soundFinale = new Audio("sounds/finale.mp3");
+    const soundMuenze = new Audio("sounds/muenze.mp3");
+    soundMuenze.volume = 0.5;
+    const bgMusic = new Audio("sounds/hintergrund.mp3");
+    const soundsProKarte = [
+      new Audio("sounds/eins.mp3"),
+      new Audio("sounds/zwei.mp3"),
+      new Audio("sounds/drei.mp3"),
+      new Audio("sounds/vier.mp3")
+    ];
+    soundsProKarte.forEach(s => {
+      s.preload = "auto";
+      s.volume = 0.70;
     });
-  </script>
+
+    [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
+    soundHebel.volume = 0.20;
+    bgMusic.loop = true;
+    bgMusic.volume = 0.17;
+    bgMusic.muted = true;
+    bgMusic.play().catch(() => {});
+
+    window.addEventListener("click", () => {
+      bgMusic.muted = false;
+      bgMusic.play();
+    }, { once: true });
+
+    // *** Gesamtdeck jetzt 52 Karten ***
+    const alleKarten = Array.from({ length: 52 }, (_, i) => `karten/karte${i + 1}.png`);
+
+    // *** Erste Runde: gleicher, begrenzter Pool wie zuvor (angepasst an das 52er-Deck) ***
+    const ersteRundeKarten = [
+      ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
+      'karten/karte19.png',
+      'karten/karte22.png',
+      'karten/karte23.png',
+      'karten/karte27.png',
+      'karten/karte28.png',
+      'karten/karte29.png',
+      'karten/karte30.png',
+      'karten/karte31.png',
+      'karten/karte33.png',
+      'karten/karte34.png',
+      'karten/karte35.png',
+      'karten/karte36.png',
+      'karten/karte37.png',
+      'karten/karte38.png',
+      'karten/karte39.png',
+      'karten/karte41.png',
+      'karten/karte42.png',
+      'karten/karte43.png',
+      'karten/karte44.png',
+      'karten/karte45.png'
+    ];
+
+    const kartenWrapper = document.getElementById("kartenContainer");
+    const kartenElemente = [];
+    let ersterZug = true;
+
+    // *** Startguthaben jetzt 13 $ ***
+    let guthaben = 13;
+    const guthabenAnzeige = document.getElementById("guthabenAnzeige");
+
+    function aktualisiereGuthaben() {
+      if (guthaben > 0) {
+        guthaben--;
+        guthabenAnzeige.textContent = `${guthaben} $`;
+        if (guthaben === 0) {
+          guthabenAnzeige.classList.add("blink");
+        }
+        return true;
+      } else {
+        guthabenAnzeige.classList.add("blink");
+        return false;
+      }
+    }
+
+    let aktiveTimeouts = [];
+    let hebelGesperrt = false;
+
+    for (let i = 0; i < 4; i++) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "karten-wrapper";
+      const karte = document.createElement("div");
+      karte.className = "karte";
+      const rueck = document.createElement("div");
+      rueck.className = "seite rueckseite";
+      const front = document.createElement("div");
+      front.className = "seite vorderseite";
+      karte.appendChild(rueck);
+      karte.appendChild(front);
+      wrapper.appendChild(karte);
+      kartenWrapper.appendChild(wrapper);
+      kartenElemente.push({ karte, front });
+    }
+
+    let ziehPool = [];
+    let aktuellerPool = null;
+
+    function aktualisiereZaehler() {
+      document.getElementById("kartenZaehler").textContent = `Karten übrig: ${ziehPool.length}`;
+    }
+
+    function zieheEinzigartigeKarten(anzahl, pool) {
+      if (!ziehPool.length || pool !== aktuellerPool) {
+        ziehPool = [...pool];
+        aktuellerPool = pool;
+      }
+      const gezogen = [];
+      for (let i = 0; i < anzahl; i++) {
+        if (!ziehPool.length) break;
+        const index = Math.floor(Math.random() * ziehPool.length);
+        gezogen.push(ziehPool.splice(index, 1)[0]);
+      }
+      return gezogen;
+    }
+
+    function zieheKarten() {
+      if (hebelGesperrt) return;
+      hebelGesperrt = true;
+      setTimeout(() => hebelGesperrt = false, 8500);
+
+      if (!aktualisiereGuthaben()) {
+        modal.style.display = "block";
+        return;
+      }
+      aktiveTimeouts.forEach(id => clearTimeout(id));
+      aktiveTimeouts = [];
+
+      const hebel = document.getElementById("hebel");
+      hebel.classList.add("aktiv");
+      soundHebel.currentTime = 0;
+      soundHebel.play();
+      kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
+
+      aktiveTimeouts.push(setTimeout(() => {
+        hebel.classList.remove("aktiv");
+        const gezogene = zieheEinzigartigeKarten(4, ersterZug ? ersteRundeKarten : alleKarten);
+        aktualisiereZaehler();
+
+        // Nach dem ersten Zug: gezogene Karten aus dem Gesamtdeck entfernen, damit sie nicht doppelt kommen
+        if (ersterZug) {
+          for (const karte of gezogene) {
+            const index = alleKarten.indexOf(karte);
+            if (index !== -1) alleKarten.splice(index, 1);
+          }
+        }
+        ersterZug = false;
+
+        gezogene.forEach((bild, i) => {
+          let delay = [500, 2200, 5000, 7000][i];
+          aktiveTimeouts.push(setTimeout(() => {
+            const { karte, front } = kartenElemente[i];
+            front.style.backgroundImage = `url('${bild}')`;
+
+            const sound = soundsProKarte[i];
+            sound.pause();
+            sound.currentTime = 0;
+            sound.play().catch(err => console.warn("Sound konnte nicht abgespielt werden:", err));
+
+            karte.classList.add("show");
+
+            soundKarten.currentTime = 0;
+            soundKarten.play();
+
+            if (i === 3) {
+              aktiveTimeouts.push(setTimeout(() => {
+                soundFinale.currentTime = 0;
+                soundFinale.play();
+              }, 1800));
+              aktualisiereZaehler();
+            }
+          }, delay));
+        });
+      }, 800));
+    }
+
+    aktualisiereZaehler();
+    document.getElementById("hebel").addEventListener("click", zieheKarten);
+
+    const modal = document.getElementById("guthabenModal");
+    const einwerfenBtn = document.getElementById("einwerfenBtn");
+    einwerfenBtn.addEventListener("click", () => {
+      // Aufladebetrag jetzt 13 $
+      guthaben = 13;
+      guthabenAnzeige.textContent = `${guthaben} $`;
+      guthabenAnzeige.classList.remove("blink");
+      soundMuenze.currentTime = 0;
+      soundMuenze.play();
+      modal.style.display = "none";
+      hebelGesperrt = false;
+    });
+
+    const soundToggle = document.getElementById("soundToggle");
+    let soundMuted = false;
+    soundToggle.addEventListener("click", () => {
+      soundMuted = !soundMuted;
+      soundToggle.classList.toggle("muted", soundMuted);
+      [soundKarten, soundHebel, soundFinale, bgMusic, ...soundsProKarte].forEach(a => a.muted = soundMuted);
+    });
+
+    const musicToggle = document.getElementById("musicToggle");
+    let musicMuted = true;
+    musicToggle.addEventListener("click", () => {
+      musicMuted = !musicMuted;
+      musicToggle.classList.toggle("muted", musicMuted);
+      bgMusic.muted = musicMuted;
+      if (!musicMuted) bgMusic.play();
+    });
+  });
+</script>
 </body>
 </html>
