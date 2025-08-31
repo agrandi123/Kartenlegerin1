@@ -278,6 +278,14 @@
       background-image: url('icons/sound-off.png');
     }
 
+    /* Thema-Icon: neutrales Symbol, kann bei Bedarf ersetzt werden */
+    #themeToggleIcon {
+      background-image: url('icons/thema.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
     .sound-label {
       text-align: center;
       font-size: 16px;
@@ -306,9 +314,27 @@
       50% { opacity: 1; }
       100% { opacity: 0.2; }
     }
-  </style>
+  .theme-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      padding: 12px 20px;
+      background: #222;
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      color: #FFD700;
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1em;
+      cursor: pointer;
+      text-shadow: 0 0 5px black;
+      display: none; /* nicht mehr verwendet */
+    }
+</style>
 </head>
 <body>
+
+<!-- (ehem.) Toggle-Button entfernt, da jetzt neben Ton & Musik -->
 
 <!-- Modal für Aufladung -->
 <div id="guthabenModal" style="
@@ -339,7 +365,7 @@
     cursor: pointer;
     text-shadow: 0 0 5px black;
     pointer-events: auto;
-  ">13 Dollar</button>
+  ">14 Dollar</button>
 </div>
 
 <div id="kartenZaehler" style="
@@ -354,7 +380,7 @@
   color: #FFD700;
   text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
   z-index: 2;">
-  Karten übrig: 52
+  Karten übrig: 56
 </div>
 
 <div id="vorhang-overlay">
@@ -375,13 +401,18 @@
     <div class="sound-icon" id="musicToggle" title="Musik an/aus"></div>
     <div class="sound-label">Musik</div>
   </div>
+  <!-- NEU: Thema-Wechsel neben Ton & Musik, erst sichtbar wenn Vorhang auf -->
+  <div class="sound-control" id="themeControl" style="display:none">
+    <div class="sound-icon" id="themeToggleIcon" title="Thema wechseln"></div>
+    <div class="sound-label">Thema</div>
+  </div>
 </div>
 <div class="wrapper">
   <div class="bereich-oben">
     <div class="schild-wrapper">
       <div class="guthaben-box">
         <div class="guthaben-label">Guthaben</div>
-        <div class="guthaben-stand" id="guthabenAnzeige">13 $</div>
+        <div class="guthaben-stand" id="guthabenAnzeige">14 $</div>
       </div>
       <div class="hebel-wrapper" id="hebel">
         <div class="hebel-griff"></div>
@@ -401,21 +432,52 @@
 </div>
 
 <script>
+  
+  // 🔄 THEMA-UMSCHALTUNG (inkl. Musikwechsel)
+  let themeAlt = false;
+  const body = document.body;
+  const themeControl = document.getElementById("themeControl");
+  const themeToggleIcon = document.getElementById("themeToggleIcon");
+
+  function applyThemeVisuals() {
+    body.style.backgroundImage = themeAlt
+      ? "url('bilder/hintergrund2.jpg')"
+      : "url('bilder/hintergrund.jpg')";
+
+    document.querySelectorAll(".rueckseite").forEach(elem => {
+      elem.style.backgroundImage = themeAlt
+        ? "url('karten/rueckseite2.png')"
+        : "url('karten/rueckseite.png')";
+    });
+  }
+
+  function switchBackgroundMusicTrack(bgMusic) {
+    const wasMuted = bgMusic.muted;
+    const wasPlaying = !bgMusic.paused && !bgMusic.muted;
+    const currentTime = 0; // bei Themewechsel bewusst neu starten
+    bgMusic.pause();
+    bgMusic.src = themeAlt ? "sounds/hintergrund2.mp3" : "sounds/hintergrund.mp3";
+    bgMusic.currentTime = currentTime;
+    bgMusic.loop = true;
+    bgMusic.volume = 0.15;
+    bgMusic.muted = wasMuted;
+    try { bgMusic.load(); } catch(e) {}
+    if (wasPlaying) {
+      bgMusic.play().catch(() => {});
+    }
+  }
+
   window.addEventListener("DOMContentLoaded", () => {
     const vorhang = document.getElementById("vorhang-overlay");
-    window.addEventListener("click", () => {
-      vorhang.classList.add("geoeffnet");
-      setTimeout(() => vorhang.remove(), 4000);
-      bgMusic.muted = false;
-      bgMusic.play();
-    }, { once: true });
-
     const soundKarten = new Audio("sounds/aufdecken.mp4");
     const soundHebel = new Audio("sounds/hebel.mp3");
     const soundFinale = new Audio("sounds/finale.mp3");
     const soundMuenze = new Audio("sounds/muenze.mp3");
     soundMuenze.volume = 0.5;
+
+    // Hintergrundmusik – Start mit Standard-Track
     const bgMusic = new Audio("sounds/hintergrund.mp3");
+
     const soundsProKarte = [
       new Audio("sounds/eins.mp3"),
       new Audio("sounds/zwei.mp3"),
@@ -434,15 +496,20 @@
     bgMusic.muted = true;
     bgMusic.play().catch(() => {});
 
+    // Erster beliebiger Klick: Vorhang öffnet, Musik an, Theme-Button sichtbar
     window.addEventListener("click", () => {
+      vorhang.classList.add("geoeffnet");
+      setTimeout(() => vorhang.remove(), 4000);
       bgMusic.muted = false;
-      bgMusic.play();
+      bgMusic.play().catch(() => {});
+      // Thema-Button anzeigen
+      themeControl.style.display = "flex";
     }, { once: true });
 
-    // *** Gesamtdeck jetzt 52 Karten ***
-    const alleKarten = Array.from({ length: 52 }, (_, i) => `karten/karte${i + 1}.png`);
+    // *** Gesamtdeck jetzt 56 Karten ***
+    const alleKarten = Array.from({ length: 56 }, (_, i) => `karten/karte${i + 1}.png`);
 
-    // *** Erste Runde: gleicher, begrenzter Pool wie zuvor (angepasst an das 52er-Deck) ***
+    // *** Erste Runde: begrenzter Pool ***
     const ersteRundeKarten = [
       ...Array.from({ length: 13 }, (_, i) => `karten/karte${i + 1}.png`),
       'karten/karte19.png',
@@ -464,15 +531,20 @@
       'karten/karte42.png',
       'karten/karte43.png',
       'karten/karte44.png',
-      'karten/karte45.png'
+      'karten/karte45.png',
+      'karten/karte46.png',
+      'karten/karte48.png',
+      'karten/karte49.png',
+      'karten/karte54.png',
+      'karten/karte55.png'
     ];
 
     const kartenWrapper = document.getElementById("kartenContainer");
     const kartenElemente = [];
     let ersterZug = true;
 
-    // *** Startguthaben jetzt 13 $ ***
-    let guthaben = 13;
+    // *** Startguthaben 14 $ ***
+    let guthaben = 14;
     const guthabenAnzeige = document.getElementById("guthabenAnzeige");
 
     function aktualisiereGuthaben() {
@@ -547,15 +619,15 @@
       soundHebel.play();
       kartenElemente.forEach(({ karte }) => karte.classList.remove("show"));
 
-      aktiveTimeouts.push(setTimeout(() => {
+      setTimeout(() => {
         hebel.classList.remove("aktiv");
         const gezogene = zieheEinzigartigeKarten(4, ersterZug ? ersteRundeKarten : alleKarten);
         aktualisiereZaehler();
 
         // Nach dem ersten Zug: gezogene Karten aus dem Gesamtdeck entfernen, damit sie nicht doppelt kommen
         if (ersterZug) {
-          for (const karte of gezogene) {
-            const index = alleKarten.indexOf(karte);
+          for (const k of gezogene) {
+            const index = alleKarten.indexOf(k);
             if (index !== -1) alleKarten.splice(index, 1);
           }
         }
@@ -563,7 +635,7 @@
 
         gezogene.forEach((bild, i) => {
           let delay = [500, 2200, 5000, 7000][i];
-          aktiveTimeouts.push(setTimeout(() => {
+          const t = setTimeout(() => {
             const { karte, front } = kartenElemente[i];
             front.style.backgroundImage = `url('${bild}')`;
 
@@ -578,15 +650,16 @@
             soundKarten.play();
 
             if (i === 3) {
-              aktiveTimeouts.push(setTimeout(() => {
+              setTimeout(() => {
                 soundFinale.currentTime = 0;
                 soundFinale.play();
-              }, 1800));
+              }, 1800);
               aktualisiereZaehler();
             }
-          }, delay));
+          }, delay);
+          aktiveTimeouts.push(t);
         });
-      }, 800));
+      }, 800);
     }
 
     aktualisiereZaehler();
@@ -595,8 +668,8 @@
     const modal = document.getElementById("guthabenModal");
     const einwerfenBtn = document.getElementById("einwerfenBtn");
     einwerfenBtn.addEventListener("click", () => {
-      // Aufladebetrag jetzt 13 $
-      guthaben = 13;
+      // Aufladebetrag 14 $
+      guthaben = 14;
       guthabenAnzeige.textContent = `${guthaben} $`;
       guthabenAnzeige.classList.remove("blink");
       soundMuenze.currentTime = 0;
@@ -620,6 +693,13 @@
       musicToggle.classList.toggle("muted", musicMuted);
       bgMusic.muted = musicMuted;
       if (!musicMuted) bgMusic.play();
+    });
+
+    // Thema-Wechsel-Listener
+    themeToggleIcon.addEventListener("click", () => {
+      themeAlt = !themeAlt;
+      applyThemeVisuals();
+      switchBackgroundMusicTrack(bgMusic);
     });
   });
 </script>
