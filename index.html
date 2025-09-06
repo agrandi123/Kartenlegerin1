@@ -365,7 +365,7 @@
     cursor: pointer;
     text-shadow: 0 0 5px black;
     pointer-events: auto;
-  ">14 Dollar</button>
+  ">15 Dollar</button>
 </div>
 
 <div id="kartenZaehler" style="
@@ -380,7 +380,7 @@
   color: #FFD700;
   text-shadow: 0 0 6px #ffda6b, 0 0 12px #ffbf00, 1px 1px 3px black;
   z-index: 2;">
-  Karten übrig: 56
+  Karten übrig: 60
 </div>
 
 <div id="vorhang-overlay">
@@ -412,7 +412,7 @@
     <div class="schild-wrapper">
       <div class="guthaben-box">
         <div class="guthaben-label">Guthaben</div>
-        <div class="guthaben-stand" id="guthabenAnzeige">14 $</div>
+        <div class="guthaben-stand" id="guthabenAnzeige">15 $</div>
       </div>
       <div class="hebel-wrapper" id="hebel">
         <div class="hebel-griff"></div>
@@ -492,7 +492,7 @@
     [soundKarten, soundHebel, soundFinale].forEach(a => a.volume = 0.5);
     soundHebel.volume = 0.20;
     bgMusic.loop = true;
-    bgMusic.volume = 0.17;
+    bgMusic.volume = 0.15;
     bgMusic.muted = true;
     bgMusic.play().catch(() => {});
 
@@ -506,8 +506,8 @@
       themeControl.style.display = "flex";
     }, { once: true });
 
-    // *** Gesamtdeck jetzt 56 Karten ***
-    const alleKarten = Array.from({ length: 56 }, (_, i) => `karten/karte${i + 1}.png`);
+    // *** Gesamtdeck jetzt 60 Karten ***
+    const alleKarten = Array.from({ length: 60 }, (_, i) => `karten/karte${i + 1}.png`);
 
     // *** Erste Runde: begrenzter Pool ***
     const ersteRundeKarten = [
@@ -544,7 +544,7 @@
     let ersterZug = true;
 
     // *** Startguthaben 14 $ ***
-    let guthaben = 14;
+    let guthaben = 15;
     const guthabenAnzeige = document.getElementById("guthabenAnzeige");
 
     function aktualisiereGuthaben() {
@@ -668,8 +668,8 @@
     const modal = document.getElementById("guthabenModal");
     const einwerfenBtn = document.getElementById("einwerfenBtn");
     einwerfenBtn.addEventListener("click", () => {
-      // Aufladebetrag 14 $
-      guthaben = 14;
+      // Aufladebetrag 15 $
+      guthaben = 15;
       guthabenAnzeige.textContent = `${guthaben} $`;
       guthabenAnzeige.classList.remove("blink");
       soundMuenze.currentTime = 0;
